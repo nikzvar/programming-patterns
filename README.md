@@ -1,2 +1,1 @@
-# programming-patterns
-programming patterns
+This is repository with programming patterns on Java and C++
