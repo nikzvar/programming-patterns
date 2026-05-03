@@ -3,23 +3,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-// Сам Активный Объект (Active Object) - связывает всё вместе
 public class ActiveOrderProcessor implements OrderProcessor {
     
-    // Очередь запросов (Activation Queue)
     private final BlockingQueue<Runnable> dispatchQueue = new LinkedBlockingQueue<>();
-    // Исполнитель (Servant)
     private final OrderProcessingServant servant = new OrderProcessingServant();
     private volatile boolean isRunning = true;
 
     public ActiveOrderProcessor() {
-        // Планировщик (Scheduler) - отдельный поток
         Thread schedulerThread = new Thread(() -> {
             while (isRunning || !dispatchQueue.isEmpty()) {
                 try {
-                    // Берем задачу из очереди (блокируется, если пусто)
                     Runnable methodRequest = dispatchQueue.take();
-                    methodRequest.run(); // Выполняем
+                    methodRequest.run(); 
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -33,7 +28,6 @@ public class ActiveOrderProcessor implements OrderProcessor {
     public Future<String> processOrder(String orderId) {
         CompletableFuture<String> futureResult = new CompletableFuture<>();
 
-        // Создаем Method Request (Команду) и кладем в очередь
         dispatchQueue.offer(() -> {
             try {
                 String result = servant.doProcess(orderId);
